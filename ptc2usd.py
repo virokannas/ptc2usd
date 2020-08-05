@@ -49,15 +49,27 @@ class PTCParser(object):
             std_f, path = tempfile.mkstemp("{}.usda".format(os.path.basename(self.path).split(".")[0]))
         stage = Usd.Stage.CreateNew(path)
         xform = UsdGeom.Xform.Define(stage, '/points')
+        pts_obj = UsdGeom.Points.Define(stage, '/points/pts')
         for p_attr in self.attributes.get("pointattributes", []):
             if p_attr[0]["name"] == "P":
                 values = p_attr[1]["values"]["tuples"]
-                pts = UsdGeom.Points(xform)
-                attr = pts.CreatePointsAttr()
+                #pts = UsdGeom.Points(xform)
+                attr = pts_obj.CreatePointsAttr()
                 all_points = []
+                wths = []
                 for p in values:
                     all_points.append(Gf.Vec3f(p[0],p[1],p[2]))
+                    wths.append(1.0)
                 attr.Set(all_points)
+                w_attr = pts_obj.CreateWidthsAttr(wths)
+            elif p_attr[0]["name"] == "v":
+                values = p_attr[1]["values"]["tuples"]
+                #pts = UsdGeom.Points(xform)
+                all_vels = []
+                wths = []
+                for p in values:
+                    all_vels.append(Gf.Vec3f(p[0],p[1],p[2]))
+                pts_obj.CreateVelocitiesAttr(all_vels)
         stage.GetRootLayer().Save()
         if use_stdout:
             with open(path, "r") as f:
