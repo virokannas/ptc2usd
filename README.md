@@ -1,5 +1,5 @@
 # ptc2usd
-Converts ptc files to usd files.
+Converts point cloud files to usd files.
 
 ## 2D ASCII-Graphical representation of what's happening
 ```
