@@ -25,6 +25,16 @@ Please note that you need to have [Pixar's USD](https://github.com/pixarAnimatio
 
 If running against PTC files, the script will try to locate a RenderManProServer installation and use the prman library there. If your installation location is unusual, use the LD_LIBRARY_PATH or DYLD_LIBRARY_PATH environment variable to include that location. Also, if one is already specified, no locating will be done.
 
+If you need to run this on a different platform (the current binaries are for MacOS 10.15 and CentOS 7), just compile the pt.c into a matching file under bin/. The name is created using sys.platform: ```"{}_pt".format(sys.platform)``` so depending on your Linux distribution and python version it may be linux_pt or linux2_pt.
+
+To compile, just supply your desired C compiler with the library / include paths and libraries to link with, examples:
+```shell
+# CentOS 7
+gcc -o bin/linux_pt -I/opt/pixar/RenderManProServer-23.2/include -std=c99 -L/opt/pixar/RenderManProServer-23.2/lib -lprman -lpxrcore pt.c
+
+# MacOS 10.15 (note that clang doesn't need the -std=c99 flag by default)
+gcc -o bin/darwin_pt -I/Applications/Pixar/RendermanProServer-23.2/include -L/Applications/Pixar/RendermanProServer-23.2/lib -lprman -lpxrcore pt.c
+```
 
 ## Why?
 
