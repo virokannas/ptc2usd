@@ -145,17 +145,42 @@ class PTCParser(PointCloudParser):
         pt_p = subprocess.Popen([rel_exec, self.path], stdout=subprocess.PIPE)
         self._data["points"] = []
         for line in pt_p.stdout:
-            self._data["points"].append([float(x) for x in line.strip("\n").split(",")])
+            vals = line.strip("\n").split(",")
+            # first 7 are pos,norm,width
+            # 8, 9: datasize, nvars
+            tvals = [float(x) for x in vals[:9]]
+            nvars = int(tvals[8])
+            data = tvals
+            pt = 9 + nvars * 2
+            for n in range(nvars):
+                var = [vals[n*2+9], vals[n*2+10]]
+                if var[1] == "color":
+                    var.append(float(vals[pt]))
+                    var.append(float(vals[pt+1]))
+                    var.append(float(vals[pt+2]))
+                    pt += 3
+                data.append(var)
+            self._data["points"].append(data)
 
     def populate_point_object(self, pts_obj):
-        attr = pts_obj.CreatePointsAttr()
         all_points = []
         wths = []
+        norms = []
+        colors = []
         for p in self._data["points"]:
             all_points.append(Gf.Vec3f(p[0],p[1],p[2]))
             wths.append(p[6])
-        attr.Set(all_points)
-        w_attr = pts_obj.CreateWidthsAttr(wths)
+            norms.append(Gf.Vec3f(p[3],p[4],p[5]))
+            if len(p) > 9:
+                for var in p[9:]:
+                    if var[1] == "color":
+                        colors.append(Gf.Vec3f(var[2], var[3], var[4]))
+        pts_obj.CreatePointsAttr(all_points)
+        pts_obj.CreateNormalsAttr(norms)
+        pts_obj.CreateWidthsAttr(wths)
+        if colors:
+            pts_obj.CreateDisplayColorAttr(colors)
+
 
 
 if len(sys.argv)<3:
