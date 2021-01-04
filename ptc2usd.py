@@ -188,7 +188,7 @@ if len(sys.argv)<3:
     sys.exit(0)
 
 if sys.argv[1].lower().endswith(".json"):
-    pp = JsonPointParser(sys.argv[1])
+    pp = JSONPointParser(sys.argv[1])
     pp.parse()
     pp.write_usd(sys.argv[2])
 else:
